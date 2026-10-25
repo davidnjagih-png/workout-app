@@ -1,9 +1,12 @@
-from flask import Flask, make_response
+from flask import Flask, make_response, request
 from flask_migrate import Migrate
+from marshmallow import ValidationError
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
+from sqlalchemy.exc import IntegrityError
 
-from models import *
+from models import db, Exercise, Workout, WorkoutExercise
+from schemas import ExerciseSchema, WorkoutSchema, WorkoutExerciseSchema
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
@@ -22,6 +25,43 @@ def enable_sqlite_foreign_keys(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute('PRAGMA foreign_keys=ON')
     cursor.close()
+
+
+# Schema instances: list views omit nested links to keep responses small.
+workout_schema = WorkoutSchema()
+workouts_schema = WorkoutSchema(many=True, exclude=('workout_exercises',))
+exercise_schema = ExerciseSchema()
+exercises_schema = ExerciseSchema(many=True, exclude=('workout_exercises',))
+workout_exercise_schema = WorkoutExerciseSchema()
+
+
+def error_response(message, status):
+    return make_response({'errors': message}, status)
+
+
+@app.errorhandler(ValidationError)
+def handle_schema_error(err):
+    """Marshmallow schema validation failed on the request body."""
+    return error_response(err.messages, 400)
+
+
+@app.errorhandler(ValueError)
+def handle_model_error(err):
+    """A model @validates method rejected a value."""
+    db.session.rollback()
+    return error_response([str(err)], 400)
+
+
+@app.errorhandler(IntegrityError)
+def handle_integrity_error(err):
+    """A database constraint (unique, check, not null) rejected the write."""
+    db.session.rollback()
+    return error_response(['Request violates a database constraint.'], 409)
+
+
+@app.errorhandler(404)
+def handle_not_found(err):
+    return error_response(['Resource not found.'], 404)
 
 
 # ---------- Workouts ----------
