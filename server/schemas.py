@@ -1,5 +1,5 @@
 """Marshmallow schemas for serializing models to JSON and validating request bodies."""
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, ValidationError, fields, validate, validates_schema
 
 from models import EXERCISE_CATEGORIES
 
@@ -48,12 +48,21 @@ class WorkoutExerciseSchema(Schema):
     id = fields.Int(dump_only=True)
     workout_id = fields.Int(dump_only=True)
     exercise_id = fields.Int(dump_only=True)
-    reps = fields.Int(allow_none=True)
-    sets = fields.Int(allow_none=True)
-    duration_seconds = fields.Int(allow_none=True)
+    reps = fields.Int(allow_none=True, strict=True, validate=validate.Range(min=0))
+    sets = fields.Int(allow_none=True, strict=True, validate=validate.Range(min=0))
+    duration_seconds = fields.Int(allow_none=True, strict=True, validate=validate.Range(min=0))
     workout = fields.Nested(
         lambda: WorkoutSchema(exclude=('workout_exercises',)), dump_only=True
     )
     exercise = fields.Nested(
         lambda: ExerciseSchema(exclude=('workout_exercises',)), dump_only=True
     )
+
+    @validates_schema
+    def validate_has_amount(self, data, **kwargs):
+        """An exercise in a workout must record reps, sets or a duration."""
+        if all(data.get(f) is None for f in ('reps', 'sets', 'duration_seconds')):
+            raise ValidationError(
+                'Provide at least one of reps, sets or duration_seconds.',
+                field_name='_schema',
+            )
