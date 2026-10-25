@@ -49,10 +49,19 @@ class Workout(db.Model):
 
 class WorkoutExercise(db.Model):
     __tablename__ = 'workout_exercises'
+    __table_args__ = (
+        db.UniqueConstraint('workout_id', 'exercise_id', name='uq_workout_exercise_pair'),
+        db.CheckConstraint('reps IS NULL OR reps >= 0', name='ck_we_reps_non_negative'),
+        db.CheckConstraint('sets IS NULL OR sets >= 0', name='ck_we_sets_non_negative'),
+        db.CheckConstraint(
+            'duration_seconds IS NULL OR duration_seconds >= 0',
+            name='ck_we_duration_non_negative',
+        ),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
-    workout_id = db.Column(db.Integer, db.ForeignKey('workouts.id'))
-    exercise_id = db.Column(db.Integer, db.ForeignKey('exercises.id'))
+    workout_id = db.Column(db.Integer, db.ForeignKey('workouts.id'), nullable=False)
+    exercise_id = db.Column(db.Integer, db.ForeignKey('exercises.id'), nullable=False)
     reps = db.Column(db.Integer)
     sets = db.Column(db.Integer)
     duration_seconds = db.Column(db.Integer)
