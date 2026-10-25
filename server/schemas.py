@@ -1,11 +1,22 @@
 """Marshmallow schemas for serializing models to JSON and validating request bodies."""
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
+
+from models import EXERCISE_CATEGORIES
 
 
 class ExerciseSchema(Schema):
     id = fields.Int(dump_only=True)
-    name = fields.Str(required=True)
-    category = fields.Str(required=True)
+    name = fields.Str(
+        required=True,
+        validate=validate.Length(min=1, max=100, error='Name must be 1-100 characters.'),
+    )
+    category = fields.Str(
+        required=True,
+        validate=validate.OneOf(
+            EXERCISE_CATEGORIES,
+            error=f'Category must be one of: {", ".join(EXERCISE_CATEGORIES)}.',
+        ),
+    )
     equipment_needed = fields.Bool(load_default=False)
     # Each link carries the workout plus the reps/sets/duration used in it.
     workout_exercises = fields.List(
