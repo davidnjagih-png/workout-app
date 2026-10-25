@@ -123,7 +123,11 @@ def create_exercise():
 
 @app.route('/exercises/<int:id>', methods=['DELETE'])
 def delete_exercise(id):
-    return make_response({}, 204)
+    """Delete an exercise; its WorkoutExercises are removed by the ORM cascade."""
+    exercise = db.get_or_404(Exercise, id)
+    db.session.delete(exercise)
+    db.session.commit()
+    return make_response('', 204)
 
 
 
