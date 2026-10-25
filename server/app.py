@@ -68,7 +68,8 @@ def handle_not_found(err):
 
 @app.route('/workouts', methods=['GET'])
 def get_workouts():
-    return make_response({}, 200)
+    workouts = Workout.query.order_by(Workout.date).all()
+    return make_response(workouts_schema.dump(workouts), 200)
 
 
 @app.route('/workouts/<int:id>', methods=['GET'])
