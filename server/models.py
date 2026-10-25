@@ -13,7 +13,9 @@ class Exercise(db.Model):
     category = db.Column(db.String)
     equipment_needed = db.Column(db.Boolean)
 
-    workout_exercises = db.relationship('WorkoutExercise', back_populates='exercise')
+    workout_exercises = db.relationship(
+        'WorkoutExercise', back_populates='exercise', cascade='all, delete-orphan'
+    )
     # Exercise has many Workouts through WorkoutExercises
     workouts = association_proxy('workout_exercises', 'workout')
 
@@ -29,7 +31,9 @@ class Workout(db.Model):
     duration_minutes = db.Column(db.Integer)
     notes = db.Column(db.Text)
 
-    workout_exercises = db.relationship('WorkoutExercise', back_populates='workout')
+    workout_exercises = db.relationship(
+        'WorkoutExercise', back_populates='workout', cascade='all, delete-orphan'
+    )
     # Workout has many Exercises through WorkoutExercises
     exercises = association_proxy('workout_exercises', 'exercise')
 
