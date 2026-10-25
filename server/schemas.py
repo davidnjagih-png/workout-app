@@ -7,3 +7,10 @@ class ExerciseSchema(Schema):
     name = fields.Str(required=True)
     category = fields.Str(required=True)
     equipment_needed = fields.Bool(load_default=False)
+
+
+class WorkoutSchema(Schema):
+    id = fields.Int(dump_only=True)
+    date = fields.Date(required=True)
+    duration_minutes = fields.Int(required=True)
+    notes = fields.Str(allow_none=True)
