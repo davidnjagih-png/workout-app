@@ -138,7 +138,14 @@ def delete_exercise(id):
     methods=['POST'],
 )
 def add_exercise_to_workout(workout_id, exercise_id):
-    return make_response({}, 201)
+    """Link an existing exercise to an existing workout with reps/sets/duration."""
+    workout = db.get_or_404(Workout, workout_id)
+    exercise = db.get_or_404(Exercise, exercise_id)
+    data = WorkoutExerciseSchema().load(request.get_json() or {})
+    workout_exercise = WorkoutExercise(workout=workout, exercise=exercise, **data)
+    db.session.add(workout_exercise)
+    db.session.commit()
+    return make_response(workout_exercise_schema.dump(workout_exercise), 201)
 
 
 if __name__ == '__main__':
