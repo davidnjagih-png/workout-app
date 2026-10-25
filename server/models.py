@@ -28,10 +28,13 @@ class Exercise(db.Model):
 
 class Workout(db.Model):
     __tablename__ = 'workouts'
+    __table_args__ = (
+        db.CheckConstraint('duration_minutes > 0', name='ck_workout_duration_positive'),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Date)
-    duration_minutes = db.Column(db.Integer)
+    date = db.Column(db.Date, nullable=False)
+    duration_minutes = db.Column(db.Integer, nullable=False)
     notes = db.Column(db.Text)
 
     workout_exercises = db.relationship(
