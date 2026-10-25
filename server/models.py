@@ -4,6 +4,9 @@ from sqlalchemy.orm import validates
 
 db = SQLAlchemy()
 
+# Allowed values for Exercise.category, shared with the schemas.
+EXERCISE_CATEGORIES = ('strength', 'cardio', 'flexibility', 'balance', 'mobility')
+
 
 class Exercise(db.Model):
     __tablename__ = 'exercises'
@@ -21,6 +24,18 @@ class Exercise(db.Model):
     )
     # Exercise has many Workouts through WorkoutExercises
     workouts = association_proxy('workout_exercises', 'workout')
+
+    @validates('name')
+    def validate_name(self, key, value):
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError('Exercise name must be a non-empty string.')
+        return value.strip()
+
+    @validates('category')
+    def validate_category(self, key, value):
+        if not isinstance(value, str) or value.strip().lower() not in EXERCISE_CATEGORIES:
+            raise ValueError(f'Category must be one of: {", ".join(EXERCISE_CATEGORIES)}.')
+        return value.strip().lower()
 
     def __repr__(self):
         return f'<Exercise {self.id} {self.name}>'
