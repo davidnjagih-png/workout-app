@@ -90,7 +90,11 @@ def create_workout():
 
 @app.route('/workouts/<int:id>', methods=['DELETE'])
 def delete_workout(id):
-    return make_response({}, 204)
+    """Delete a workout; its WorkoutExercises are removed by the ORM cascade."""
+    workout = db.get_or_404(Workout, id)
+    db.session.delete(workout)
+    db.session.commit()
+    return make_response('', 204)
 
 
 # ---------- Exercises ----------
