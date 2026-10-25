@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, make_response, request
 from flask_migrate import Migrate
 from marshmallow import ValidationError
@@ -9,7 +11,8 @@ from models import db, Exercise, Workout, WorkoutExercise
 from schemas import ExerciseSchema, WorkoutSchema, WorkoutExerciseSchema
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+# DATABASE_URI can be overridden (the test suite uses an in-memory database).
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', 'sqlite:///app.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.json.compact = False
 
