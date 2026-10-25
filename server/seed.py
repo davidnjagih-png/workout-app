@@ -30,3 +30,17 @@ with app.app_context():
     full_body = Workout(date=date(2026, 10, 5), duration_minutes=50, notes='Full body circuit')
     db.session.add_all([leg_day, cardio_day, full_body])
     db.session.commit()
+
+    print('Seeding workout exercises...')
+    db.session.add_all([
+        WorkoutExercise(workout=leg_day, exercise=squat, sets=5, reps=5),
+        WorkoutExercise(workout=leg_day, exercise=stretch, duration_seconds=120),
+        WorkoutExercise(workout=cardio_day, exercise=run, duration_seconds=1800),
+        WorkoutExercise(workout=cardio_day, exercise=plank, sets=3, duration_seconds=60),
+        WorkoutExercise(workout=full_body, exercise=pushup, sets=4, reps=15),
+        WorkoutExercise(workout=full_body, exercise=squat, sets=3, reps=10),
+        WorkoutExercise(workout=full_body, exercise=plank, sets=3, duration_seconds=45),
+    ])
+    db.session.commit()
+
+    print('Done seeding!')
