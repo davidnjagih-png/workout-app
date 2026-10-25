@@ -28,8 +28,15 @@ class ExerciseSchema(Schema):
 class WorkoutSchema(Schema):
     id = fields.Int(dump_only=True)
     date = fields.Date(required=True)
-    duration_minutes = fields.Int(required=True)
-    notes = fields.Str(allow_none=True)
+    duration_minutes = fields.Int(
+        required=True,
+        strict=True,
+        validate=validate.Range(min=1, max=1440, error='Duration must be 1-1440 minutes.'),
+    )
+    notes = fields.Str(
+        allow_none=True,
+        validate=validate.Length(max=1000, error='Notes must be 1000 characters or fewer.'),
+    )
     # Each link carries the exercise plus the reps/sets/duration used in it.
     workout_exercises = fields.List(
         fields.Nested(lambda: WorkoutExerciseSchema(exclude=('workout',))),
