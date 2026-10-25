@@ -81,7 +81,11 @@ def get_workout(id):
 
 @app.route('/workouts', methods=['POST'])
 def create_workout():
-    return make_response({}, 201)
+    data = WorkoutSchema(exclude=('workout_exercises',)).load(request.get_json() or {})
+    workout = Workout(**data)
+    db.session.add(workout)
+    db.session.commit()
+    return make_response(workout_schema.dump(workout), 201)
 
 
 @app.route('/workouts/<int:id>', methods=['DELETE'])
