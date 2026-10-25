@@ -1,3 +1,5 @@
+from datetime import date
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import validates
@@ -57,6 +59,19 @@ class Workout(db.Model):
     )
     # Workout has many Exercises through WorkoutExercises
     exercises = association_proxy('workout_exercises', 'exercise')
+
+    @validates('duration_minutes')
+    def validate_duration_minutes(self, key, value):
+        # bool is a subclass of int, so reject it explicitly.
+        if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+            raise ValueError('Workout duration_minutes must be a positive integer.')
+        return value
+
+    @validates('date')
+    def validate_date(self, key, value):
+        if not isinstance(value, date):
+            raise ValueError('Workout date must be a date.')
+        return value
 
     def __repr__(self):
         return f'<Workout {self.id} {self.date}>'
