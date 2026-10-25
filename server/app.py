@@ -107,7 +107,9 @@ def get_exercises():
 
 @app.route('/exercises/<int:id>', methods=['GET'])
 def get_exercise(id):
-    return make_response({}, 200)
+    """Return one exercise with the workouts it appears in."""
+    exercise = db.get_or_404(Exercise, id)
+    return make_response(exercise_schema.dump(exercise), 200)
 
 
 @app.route('/exercises', methods=['POST'])
