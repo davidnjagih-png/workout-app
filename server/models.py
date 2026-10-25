@@ -99,5 +99,14 @@ class WorkoutExercise(db.Model):
     workout = db.relationship('Workout', back_populates='workout_exercises')
     exercise = db.relationship('Exercise', back_populates='workout_exercises')
 
+    @validates('reps', 'sets', 'duration_seconds')
+    def validate_amounts(self, key, value):
+        # Each amount is optional, but if present it must be a non-negative integer.
+        if value is None:
+            return value
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise ValueError(f'{key} must be a non-negative integer.')
+        return value
+
     def __repr__(self):
         return f'<WorkoutExercise workout={self.workout_id} exercise={self.exercise_id}>'
