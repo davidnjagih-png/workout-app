@@ -1,3 +1,4 @@
+"""SQLAlchemy models, relationships, table constraints and model validations."""
 from datetime import date
 
 from flask_sqlalchemy import SQLAlchemy

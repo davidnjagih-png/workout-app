@@ -1,3 +1,4 @@
+"""Flask application and REST API routes for the workout tracker."""
 import os
 
 from flask import Flask, make_response, request
