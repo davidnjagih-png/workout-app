@@ -114,7 +114,11 @@ def get_exercise(id):
 
 @app.route('/exercises', methods=['POST'])
 def create_exercise():
-    return make_response({}, 201)
+    data = ExerciseSchema(exclude=('workout_exercises',)).load(request.get_json() or {})
+    exercise = Exercise(**data)
+    db.session.add(exercise)
+    db.session.commit()
+    return make_response(exercise_schema.dump(exercise), 201)
 
 
 @app.route('/exercises/<int:id>', methods=['DELETE'])
