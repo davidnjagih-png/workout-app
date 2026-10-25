@@ -1,5 +1,7 @@
 """Marshmallow schemas for serializing models to JSON and validating request bodies."""
-from marshmallow import Schema, ValidationError, fields, validate, validates_schema
+from marshmallow import (
+    Schema, ValidationError, fields, pre_load, validate, validates_schema,
+)
 
 from models import EXERCISE_CATEGORIES
 
@@ -18,6 +20,16 @@ class ExerciseSchema(Schema):
         ),
     )
     equipment_needed = fields.Bool(load_default=False)
+    @pre_load
+    def normalize(self, data, **kwargs):
+        """Trim the name and lowercase the category so 'Cardio ' matches 'cardio'."""
+        data = dict(data)
+        if isinstance(data.get('name'), str):
+            data['name'] = data['name'].strip()
+        if isinstance(data.get('category'), str):
+            data['category'] = data['category'].strip().lower()
+        return data
+
     # Each link carries the workout plus the reps/sets/duration used in it.
     workout_exercises = fields.List(
         fields.Nested(lambda: WorkoutExerciseSchema(exclude=('exercise',))),
